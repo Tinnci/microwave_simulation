@@ -1,6 +1,6 @@
 """单支节匹配器模块"""
 import numpy as np
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Any
 
 class StubMatcher:
     """单支节匹配器类"""
@@ -23,6 +23,7 @@ class StubMatcher:
         self.freq = freq
         self.z0 = z0
         self.zl = zl
+        self.zl_norm = self.zl / self.z0
         self.wavelength = self.calculate_wavelength()
         self._calculate_parameters()
 
@@ -38,9 +39,8 @@ class StubMatcher:
 
     def _calculate_parameters(self) -> None:
         """计算匹配器参数"""
-        # 归一化负载阻抗
-        zl_norm = self.zl / self.z0
-        yl_norm = 1 / zl_norm
+        # 归一化导纳
+        yl_norm = 1 / self.zl_norm
         gl_norm = yl_norm.real
         bl_norm = yl_norm.imag
 
@@ -79,7 +79,7 @@ class StubMatcher:
         """
         # 计算归一化导纳
         y_stub = 1j * self.b_stub
-        y_load = 1 / (self.zl / self.z0)
+        y_load = 1 / self.zl_norm
 
         # 计算反射系数
         gamma_in = (y_stub - 1) / (y_stub + 1)
@@ -158,32 +158,14 @@ class StubMatcher:
             "solutions": self.get_all_solutions()
         }
 
-    def _calculate_stub_parameters(self):
-        """计算短截线参数"""
-        # 归一化负载导纳
-        yl_norm = 1 / self.zl_norm
-        gl_norm = yl_norm.real
-        bl_norm = yl_norm.imag
-        
-        # 计算短截线导纳
-        try:
-            b_stub = np.sqrt(abs((gl_norm - 1)**2 + bl_norm**2 - 1))  # 添加 abs 避免负数平方根
-            if not np.isfinite(b_stub):
-                raise ValueError("无法找到有效的短截线解")
-        except (ValueError, RuntimeWarning):
-            raise ValueError("无法找到有效的短截线解")
-            
-        # 计算短截线到负载的距离
-        theta = np.arctan2(bl_norm, gl_norm - 1)
-        if theta < 0:
-            theta += np.pi
-            
-        # 计算短截线长度
-        stub_length = -np.arctan(1 / b_stub) / (2 * np.pi)
-        if stub_length < 0:
-            stub_length += 0.5
-            
-        return b_stub, theta, stub_length
+    def calculate(self) -> Dict[str, Any]:
+        """
+        执行计算并返回结果
+
+        返回:
+            Dict[str, Any]: 计算结果
+        """
+        return self.get_results()
 
 class Network:
     """网络类"""

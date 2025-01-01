@@ -2,85 +2,49 @@
 示例脚本：演示如何使用阻抗匹配模块
 """
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')  # 设置后端为Agg，禁止图形窗口显示
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
-from src.impedance_matching import QuarterWaveTransformer, StubMatcher
-from src.visualization.result_saver import ResultSaver
-from skrf import plotting
+from impedance_matching.core import QuarterWaveTransformer, StubMatcher
+from visualization.result_saver import ResultSaver
 
-# 设置中文字体
-plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']  # 微软雅黑
-plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+# 设置参数
+frequency = 2.4e9  # 2.4 GHz
+z0 = 50.0  # 特征阻抗
+z_load = 75.0  # 负载阻抗
 
-def main():
-    # 设置参数
-    z0 = 50  # 特征阻抗
-    zl = 25 + 75j  # 负载阻抗
-    freq = 5e9  # 中心频率
-    
-    # 创建结果保存器
-    saver = ResultSaver()
-    
-    # 保存初始参数
-    initial_params = {
-        "特征阻抗": z0,
-        "负载阻抗": zl,
-        "中心频率": f"{freq/1e9:.2f} GHz"  # 转换为GHz
-    }
-    saver.save_parameters(initial_params, "initial_parameters.json")
-    
-    # 创建四分之一波长变换器
-    quarter_wave = QuarterWaveTransformer(z0, zl, freq)
-    z1 = quarter_wave.calculate_transformer_impedance()
-    quarter_wave_params = {
-        "变换器特征阻抗": f"{z1:.2f} Ω",
-        "四分之一波长": f"{quarter_wave.calculate_quarter_wavelength()*1000:.2f} mm",
-        "VSWR": f"{quarter_wave.calculate_vswr():.2f}"
-    }
-    print("\n四分之一波长变换器参数:")
-    for key, value in quarter_wave_params.items():
-        print(f"{key}: {value}")
-    
-    # 创建单枝节匹配器
-    stub = StubMatcher(z0, zl, freq)
-    d, l = stub.calculate_stub_parameters()
-    stub_params = {
-        "从负载到支节的距离": f"{d*1000:.2f} mm",
-        "支节长度": f"{l*1000:.2f} mm"
-    }
-    print("\n单枝节匹配参数:")
-    for key, value in stub_params.items():
-        print(f"{key}: {value}")
-    
-    # 获取网络参数并绘图
-    freq_range = (freq * 0.8, freq * 1.2, 201)
-    
-    # 获取并保存四分之一波长变换器结果
-    network_quarter = quarter_wave.get_network(freq_range)
-    saver.save_network_data(network_quarter, "quarter_wave", freq_range)
-    saver.save_plots(network_quarter, "四分之一波长变换器", "quarter_wave")
-    
-    # 获取并保存单枝节匹配结果
-    network_stub = stub.get_network(freq_range)
-    saver.save_network_data(network_stub, "stub_matching", freq_range)
-    saver.save_plots(network_stub, "单枝节匹配", "stub_matching")
-    
-    # 比较两种匹配方案
-    networks = [network_quarter, network_stub]
-    titles = ["四分之一波长变换器", "单枝节匹配"]
-    
-    # 生成比较图
-    for plot_type in ['magnitude', 'vswr', 'smith']:
-        saver.plot_comparison(networks, titles, plot_type)
-    
-    # 保存结果摘要
-    saver.save_summary(quarter_wave_params, stub_params)
+# 创建结果保存器
+result_saver = ResultSaver(save_dir="results")
 
-if __name__ == '__main__':
-    main() 
+# 创建四分之一波长变压器
+quarter_wave = QuarterWaveTransformer(
+    frequency=frequency,
+    z0=z0,
+    zl=z_load
+)
+
+# 计算匹配网络参数
+quarter_wave_result = quarter_wave.calculate()
+
+# 保存四分之一波长变压器的结果
+result_saver.save_network_data(quarter_wave, "results/quarter_wave")
+result_saver.save_plots(quarter_wave, "results/quarter_wave")
+
+# 创建短截线匹配器
+stub = StubMatcher(
+    frequency=frequency,
+    z0=z0,
+    zl=z_load
+)
+
+# 计算短截线匹配网络参数
+stub_result = stub.calculate()
+
+# 保存短截线匹配器的结果
+result_saver.save_network_data(stub, "results/stub")
+result_saver.save_plots(stub, "results/stub")
+
+# 保存所有结果的比较
+result_saver.save_all_results(quarter_wave, "results/comparison_quarter_wave")
+result_saver.save_all_results(stub, "results/comparison_stub") 

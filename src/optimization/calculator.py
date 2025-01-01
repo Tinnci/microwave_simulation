@@ -1,8 +1,23 @@
 """优化计算模块"""
 import numpy as np
-from typing import Dict, List, Optional, Union, Tuple, Any
-from src.impedance_matching.quarter_wave import QuarterWaveTransformer
-from src.impedance_matching.stub_matching import StubMatcher
+from typing import Dict, List, Optional, Union, Tuple, Any, cast, TypedDict, NotRequired
+from src.impedance_matching.core import (
+    QuarterWaveTransformer,
+    StubMatcher,
+    LMatcher,
+    PiMatcher,
+    TMatcher
+)
+
+class CalculationParametersDict(TypedDict):
+    """计算参数字典类型"""
+    freq: Union[float, str]
+    z0: Union[float, str]
+    z_load_real: Union[float, str]
+    z_load_imag: Union[float, str]
+    matching_method: str
+    optimization_target: str
+    weight_factors: NotRequired[Dict[str, float]]
 
 class CalculationParameters:
     """计算参数类"""
@@ -27,8 +42,8 @@ class CalculationParameters:
             raise ValueError("特征阻抗必须为正数")
         if z_load_real <= 0:
             raise ValueError("负载阻抗实部必须为正数")
-        if matching_method not in ["quarter_wave", "stub"]:
-            raise ValueError("匹配方法必须是quarter_wave或stub")
+        if matching_method not in ["quarter_wave", "stub", "L", "Pi", "T"]:
+            raise ValueError("匹配方法必须是 quarter_wave, stub, L, Pi 或 T")
         if optimization_target not in ["vswr", "length"]:
             raise ValueError("优化目标必须是vswr或length")
         if weight_factors is not None:
@@ -63,39 +78,45 @@ class CalculationParameters:
         """
         return self.freq
 
-    def to_dict(self) -> Dict[str, Union[float, str, Dict[str, float]]]:
+    def to_dict(self) -> CalculationParametersDict:
         """
         转换为字典
 
         返回:
-            Dict[str, Union[float, str, Dict[str, float]]]: 参数字典
+            CalculationParametersDict: 参数字典
         """
         return {
-            "freq": self.freq,
-            "z0": self.z0,
-            "z_load_real": self.z_load_real,
-            "z_load_imag": self.z_load_imag,
+            "freq": str(self.freq),
+            "z0": str(self.z0),
+            "z_load_real": str(self.z_load_real),
+            "z_load_imag": str(self.z_load_imag),
             "matching_method": self.matching_method,
             "optimization_target": self.optimization_target,
             "weight_factors": self.weight_factors
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Union[float, str, Dict[str, float]]]) -> 'CalculationParameters':
+    def from_dict(cls, data: CalculationParametersDict) -> 'CalculationParameters':
         """
         从字典创建参数对象
 
         参数:
-            data: Dict[str, Union[float, str, Dict[str, float]]], 参数字典
+            data: CalculationParametersDict, 参数字典
 
         返回:
             CalculationParameters: 参数对象
         """
+        # 确保数值类型的字段被转换为浮点数
+        freq = float(data["freq"]) if isinstance(data["freq"], (str, float)) else 0.0
+        z0 = float(data["z0"]) if isinstance(data["z0"], (str, float)) else 0.0
+        z_load_real = float(data["z_load_real"]) if isinstance(data["z_load_real"], (str, float)) else 0.0
+        z_load_imag = float(data["z_load_imag"]) if isinstance(data["z_load_imag"], (str, float)) else 0.0
+
         return cls(
-            freq=float(data["freq"]),
-            z0=float(data["z0"]),
-            z_load_real=float(data["z_load_real"]),
-            z_load_imag=float(data["z_load_imag"]),
+            freq=freq,
+            z0=z0,
+            z_load_real=z_load_real,
+            z_load_imag=z_load_imag,
             matching_method=str(data["matching_method"]),
             optimization_target=str(data["optimization_target"]),
             weight_factors=data.get("weight_factors")
@@ -121,8 +142,8 @@ class BatchCalculator:
             params: CalculationParameters, 计算参数
         """
         self.params = params
-        self.results = []
-        self.best_result = None
+        self.results: List[Dict[str, Any]] = []
+        self.best_result: Optional[Dict[str, Any]] = None
 
     def calculate(self, params: Optional[CalculationParameters] = None) -> Dict[str, Any]:
         """
@@ -139,18 +160,18 @@ class BatchCalculator:
 
         if params.matching_method == "quarter_wave":
             calculator = QuarterWaveTransformer(
-                freq=params.freq,
+                frequency=params.freq,
                 z0=params.z0,
                 zl=params.get_complex_load()
             )
         else:  # stub
             calculator = StubMatcher(
-                freq=params.freq,
+                frequency=params.freq,
                 z0=params.z0,
                 zl=params.get_complex_load()
             )
 
-        result = calculator.get_results()
+        result = calculator.calculate()
         result["params"] = params.to_dict()
         return result
 
@@ -205,6 +226,8 @@ class BatchCalculator:
         """
         param_list = self._generate_param_combinations(param_ranges, num_points)
         self.batch_calculate(param_list)
+        if self.best_result is None:
+            return {}  # 返回空字典作为默认结果
         return self.best_result
 
     def _generate_param_combinations(self, param_ranges: Dict[str, Tuple[float, float]], 
@@ -226,7 +249,7 @@ class BatchCalculator:
             values = np.linspace(min_val, max_val, num_points)
             for value in values:
                 params_dict = base_params.copy()
-                params_dict[param_name] = value
+                params_dict[param_name] = float(value)
                 param_list.append(CalculationParameters.from_dict(params_dict))
 
         return param_list
@@ -269,3 +292,76 @@ class BatchCalculator:
             List[Dict[str, Any]]: 所有计算结果
         """
         return self.results 
+
+def calculate_matching(frequency: float, z0: float, zl: complex):
+    """
+    计算阻抗匹配网络参数
+    
+    Args:
+        frequency: 工作频率 (Hz)
+        z0: 特征阻抗 (Ω)
+        zl: 负载阻抗 (复数)
+        
+    Returns:
+        dict: 包含匹配网络参数和性能指标的字典
+    """
+    if frequency <= 0:
+        raise ValueError("Frequency must be positive")
+    if z0 <= 0:
+        raise ValueError("Characteristic impedance must be positive")
+        
+    # 创建不同类型的匹配网络
+    networks = {
+        "quarter_wave": QuarterWaveTransformer(frequency, z0, zl),
+        "stub": StubMatcher(frequency, z0, zl),
+        "l_network": LMatcher(frequency, z0, zl),
+        "pi_network": PiMatcher(frequency, z0, zl),
+        "t_network": TMatcher(frequency, z0, zl)
+    }
+    
+    # 计算每种网络的性能
+    results = {}
+    best_vswr = float('inf')
+    best_network = None
+    
+    for name, network in networks.items():
+        result = network.calculate()
+        vswr = calculate_vswr(result["s_parameters"][0, 0])
+        
+        if vswr < best_vswr:
+            best_vswr = vswr
+            best_network = name
+            
+        results[name] = {
+            "parameters": result,
+            "vswr": vswr
+        }
+    
+    # 返回最佳匹配网络和性能指标
+    return {
+        "matching_network": {
+            "type": best_network,
+            "parameters": results[best_network]["parameters"]
+        },
+        "performance_metrics": {
+            "vswr": best_vswr,
+            "return_loss": calculate_return_loss(results[best_network]["parameters"]["s_parameters"][0, 0]),
+            "bandwidth": calculate_bandwidth(frequency, results[best_network]["parameters"]["s_parameters"])
+        }
+    }
+
+def calculate_vswr(s11):
+    """计算电压驻波比"""
+    reflection_coefficient = abs(s11)
+    if reflection_coefficient >= 1:
+        return float('inf')
+    return (1 + reflection_coefficient) / (1 - reflection_coefficient)
+
+def calculate_return_loss(s11):
+    """计算回波损耗 (dB)"""
+    return -20 * np.log10(abs(s11))
+
+def calculate_bandwidth(frequency, s_parameters):
+    """计算带宽 (相对带宽)"""
+    # 简化的带宽计算,实际应该考虑VSWR<2的频率范围
+    return 0.2  # 示例值,返回20%带宽 
