@@ -1,9 +1,42 @@
+# Rust 编译输出
+/target/
+**/target/
+Cargo.lock
+
+# IDE 配置
+.vscode/
+.idea/
+*.iml
+*.code-workspace
+.settings/
+.project
+.classpath
+
+# 调试文件
+*.pdb
+*.log
+*.swp
+*.bak
+*.tmp
+*.temp
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
+.env
+.venv/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -19,80 +52,35 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-*.pyd
-
-# Virtual Environment
-venv/
-env/
-ENV/
-.env
-.venv
-.env.*
-!.env.example
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-.project
-.pydevproject
-.settings
-*.sublime-*
-
-# Project specific
-results/
-*.log
+.pytest_cache/
 .coverage
 htmlcov/
-.pytest_cache/
+.tox/
+.nox/
+.hypothesis/
 .mypy_cache/
-.ruff_cache/
-.benchmarks/
-*.csv
-*.png
-*.jpg
-*.jpeg
-*.pdf
-*.html
 
-# Local development
-*.local
-*.local.*
-config.local.*
-local_*.*
-
-# Temporary files
+# 中间文件和缓存
+*.rlib
+*.rmeta
+*.d
+*.o
+*.a
+*.lib
+*.dll
+*.dylib
+*.so
 *.tmp
-*.temp
+*.cache
 *.bak
-*~
 *.swp
-*.swo
+*~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
-
-# System
-.DS_Store
-Thumbs.db
-desktop.ini
-$RECYCLE.BIN/
-*.lnk
-
-# Rust
-target/
-**/*.rs.bk
-Cargo.lock
-
-# Project specific exceptions
-!docs/**/*.png
-!docs/**/*.jpg
-!docs/**/*.jpeg
-!docs/**/*.pdf
-!examples/**/*.png
-!examples/**/*.csv
-
-# UV specific
-.uv/ 
+# 项目特定文件
+results/
+scripts/
+.uv/
+.ruff_cache/
+.coverage
+coverage.xml
+.pytest_cache/ 

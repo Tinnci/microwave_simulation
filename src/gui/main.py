@@ -1,6 +1,7 @@
 """主窗口模块"""
 import os
 import numpy as np
+from microwave_gui import MicrowaveGUI
 from src.impedance_matching.quarter_wave import QuarterWaveTransformer
 from src.impedance_matching.stub_matching import StubMatcher
 from src.optimization.calculator import CalculationParameters
@@ -17,6 +18,7 @@ class MicrowaveDesignApp:
         self.current_parameters = None
         self.is_calculating = False
         self.current_theme = "light"
+        self.gui = MicrowaveGUI(self)
         
     def validate_parameters(self, freq, z0, z_load_real, z_load_imag, matching_method):
         """
@@ -64,6 +66,51 @@ class MicrowaveDesignApp:
         except (ValueError, TypeError):
             raise ValueError("无效的复数阻抗格式")
             
+    def set_frequency(self, value: str) -> None:
+        """设置频率"""
+        try:
+            freq = float(value)
+            if self.validate_parameters(freq, 50, 75, 0, "quarter_wave"):
+                if self.current_parameters:
+                    self.current_parameters.freq = freq
+        except ValueError:
+            pass
+            
+    def set_z0(self, value: str) -> None:
+        """设置特征阻抗"""
+        try:
+            z0 = float(value)
+            if self.validate_parameters(1e9, z0, 75, 0, "quarter_wave"):
+                if self.current_parameters:
+                    self.current_parameters.z0 = z0
+        except ValueError:
+            pass
+            
+    def set_z_load_real(self, value: str) -> None:
+        """设置负载阻抗实部"""
+        try:
+            z_load_real = float(value)
+            if self.validate_parameters(1e9, 50, z_load_real, 0, "quarter_wave"):
+                if self.current_parameters:
+                    self.current_parameters.z_load_real = z_load_real
+        except ValueError:
+            pass
+            
+    def set_z_load_imag(self, value: str) -> None:
+        """设置负载阻抗虚部"""
+        try:
+            z_load_imag = float(value)
+            if self.current_parameters:
+                self.current_parameters.z_load_imag = z_load_imag
+        except ValueError:
+            pass
+            
+    def set_matching_method(self, method: str) -> None:
+        """设置匹配方法"""
+        if method in ["quarter_wave", "stub"]:
+            if self.current_parameters:
+                self.current_parameters.matching_method = method
+            
     def update_parameters(self, freq, z0, z_load_real, z_load_imag, matching_method):
         """
         更新参数
@@ -82,6 +129,14 @@ class MicrowaveDesignApp:
             z_load_imag=z_load_imag,
             matching_method=matching_method
         )
+        # 同步更新GUI状态
+        self.gui.begin_update()
+        self.gui.set_frequency(str(freq))
+        self.gui.set_z0(str(z0))
+        self.gui.set_z_load_real(str(z_load_real))
+        self.gui.set_z_load_imag(str(z_load_imag))
+        self.gui.set_matching_method(matching_method)
+        self.gui.end_update()
         
     def calculate(self):
         """
@@ -101,14 +156,19 @@ class MicrowaveDesignApp:
                     zl=self.current_parameters.get_complex_load(),
                     freq=self.current_parameters.freq
                 )
-                return transformer.get_results()
+                result = transformer.get_results()
             else:
                 matcher = StubMatcher(
                     z0=self.current_parameters.z0,
                     zl=self.current_parameters.get_complex_load(),
                     freq=self.current_parameters.freq
                 )
-                return matcher.get_results()
+                result = matcher.get_results()
+                
+            # 更新GUI结果
+            if result:
+                self.gui.set_result(str(result))
+            return result
         finally:
             self.is_calculating = False
             
@@ -121,6 +181,7 @@ class MicrowaveDesignApp:
         """
         if theme in ["light", "dark"]:
             self.current_theme = theme
+            self.gui.set_theme(theme)
             
     def get_validation_message(self, freq, z0, z_load_real, z_load_imag, matching_method):
         """
@@ -147,4 +208,9 @@ class MicrowaveDesignApp:
                 return "匹配方法必须是quarter_wave或stub"
             return None
         except (TypeError, ValueError):
-            return "参数类型错误" 
+            return "参数类型错误"
+            
+    def run(self):
+        """运行GUI应用"""
+        # 启动Rust GUI
+        self.gui.view() 

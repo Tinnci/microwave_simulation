@@ -53,6 +53,88 @@ print(f"支节到负载距离: {results['distance']*1000:.2f} mm")
 print(f"支节长度: {results['stub_length']*1000:.2f} mm")
 ```
 
+### L型匹配网络设计
+
+```python
+from src.impedance_matching import LMatcher
+from src.visualization import ResultSaver
+
+# 创建匹配网络实例
+matcher = LMatcher(
+    frequency=5e9,           # 5 GHz
+    z0=50,                   # 特征阻抗
+    zl=100 + 50j            # 复数负载阻抗
+)
+
+# 计算参数
+results = matcher.calculate()
+
+# 保存结果
+saver = ResultSaver()
+saver.save_network_data(matcher, "l_matching")
+saver.save_plots(matcher, "l_matching")
+
+print(f"串联元件值: {results['series_element']:.2f}")
+print(f"并联元件值: {results['parallel_element']:.2f}")
+print(f"品质因数: {results['q_factor']:.2f}")
+```
+
+### π型匹配网络设计
+
+```python
+from src.impedance_matching import PiMatcher
+from src.visualization import ResultSaver
+
+# 创建匹配网络实例
+matcher = PiMatcher(
+    frequency=5e9,           # 5 GHz
+    z0=50,                   # 特征阻抗
+    zl=100 + 50j,           # 复数负载阻抗
+    q_factor=2.0            # 期望品质因数
+)
+
+# 计算参数
+results = matcher.calculate()
+
+# 保存结果
+saver = ResultSaver()
+saver.save_network_data(matcher, "pi_matching")
+saver.save_plots(matcher, "pi_matching")
+
+print(f"输入并联元件值: {results['input_parallel']:.2f}")
+print(f"串联元件值: {results['series']:.2f}")
+print(f"输出并联元件值: {results['output_parallel']:.2f}")
+print(f"实际品质因数: {results['q_factor']:.2f}")
+```
+
+### T型匹配网络设计
+
+```python
+from src.impedance_matching import TMatcher
+from src.visualization import ResultSaver
+
+# 创建匹配网络实例
+matcher = TMatcher(
+    frequency=5e9,           # 5 GHz
+    z0=50,                   # 特征阻抗
+    zl=100 + 50j,           # 复数负载阻抗
+    q_factor=2.0            # 期望品质因数
+)
+
+# 计算参数
+results = matcher.calculate()
+
+# 保存结果
+saver = ResultSaver()
+saver.save_network_data(matcher, "t_matching")
+saver.save_plots(matcher, "t_matching")
+
+print(f"输入串联元件值: {results['input_series']:.2f}")
+print(f"并联元件值: {results['parallel']:.2f}")
+print(f"输出串联元件值: {results['output_series']:.2f}")
+print(f"实际品质因数: {results['q_factor']:.2f}")
+```
+
 ## 高级示例
 
 ### 参数扫描

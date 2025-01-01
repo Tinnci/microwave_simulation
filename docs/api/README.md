@@ -65,6 +65,103 @@ class StubMatcher:
         pass
 ```
 
+#### LMatcher
+
+L型匹配网络类。
+
+```python
+class LMatcher:
+    def __init__(self, frequency: float, z0: float, zl: complex):
+        """
+        初始化L型匹配网络。
+
+        Args:
+            frequency: 工作频率（Hz）
+            z0: 特征阻抗（Ω）
+            zl: 负载阻抗（Ω）
+        """
+        pass
+
+    def calculate(self) -> Dict[str, Any]:
+        """
+        计算匹配网络参数。
+
+        Returns:
+            Dict[str, Any]: 包含以下键值对：
+                - series_element: 串联元件值
+                - parallel_element: 并联元件值
+                - q_factor: 品质因数
+                - s_parameters: S参数
+        """
+        pass
+```
+
+#### PiMatcher
+
+π型匹配网络类。
+
+```python
+class PiMatcher:
+    def __init__(self, frequency: float, z0: float, zl: complex, q_factor: float):
+        """
+        初始化π型匹配网络。
+
+        Args:
+            frequency: 工作频率（Hz）
+            z0: 特征阻抗（Ω）
+            zl: 负载阻抗（Ω）
+            q_factor: 期望的品质因数
+        """
+        pass
+
+    def calculate(self) -> Dict[str, Any]:
+        """
+        计算匹配网络参数。
+
+        Returns:
+            Dict[str, Any]: 包含以下键值对：
+                - input_parallel: 输入并联元件值
+                - series: 串联元件值
+                - output_parallel: 输出并联元件值
+                - q_factor: 实际品质因数
+                - s_parameters: S参数
+        """
+        pass
+```
+
+#### TMatcher
+
+T型匹配网络类。
+
+```python
+class TMatcher:
+    def __init__(self, frequency: float, z0: float, zl: complex, q_factor: float):
+        """
+        初始化T型匹配网络。
+
+        Args:
+            frequency: 工作频率（Hz）
+            z0: 特征阻抗（Ω）
+            zl: 负载阻抗（Ω）
+            q_factor: 期望的品质因数
+        """
+        pass
+
+    def calculate(self) -> Dict[str, Any]:
+        """
+        计算匹配网络参数。
+
+        Returns:
+            Dict[str, Any]: 包含以下键值对：
+                - input_series: 输入串联元件值
+                - parallel: 并联元件值
+                - output_series: 输出串联元件值
+                - q_factor: 实际品质因数
+                - s_parameters: S参数
+        """
+        pass
+```
+
 ### 优化模块 (`src.optimization`)
 
 #### BatchCalculator

@@ -32,17 +32,37 @@
 
 ## 依赖要求
 
+### Python环境
 - Python 3.12+
-- numpy
-- matplotlib
-- scikit-rf
-- pandas
+- numpy >= 1.24.0
+- matplotlib >= 3.7.0
+- scikit-rf >= 0.29.0
+- pandas >= 2.0.0
+
+### Rust环境
+- Rust 1.70+
+- cargo
+- iced = "0.10"
+- pyo3 = "0.19"
 
 ## 安装方法
 
+1. 克隆仓库:
 ```bash
-# 使用uv包管理器安装依赖
+git clone https://github.com/Tinnci/microwave_simulation.git
+cd microwave_simulation
+```
+
+2. 安装Python依赖:
+```bash
+uv venv
 uv pip install -r requirements.txt
+```
+
+3. 编译GUI程序:
+```bash
+cd gui_rust
+cargo build --release
 ```
 
 ## 使用示例
