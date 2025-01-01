@@ -1,0 +1,18 @@
+[package]
+name = "microwave_gui"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "microwave_gui"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.19", features = ["extension-module"] }
+iced = "0.10"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+mockall = "0.11"
+pretty_assertions = "1.4"
+test-case = "3.3"
