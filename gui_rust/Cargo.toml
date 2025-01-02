@@ -8,8 +8,8 @@ name = "microwave_gui"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.20.3", features = ["extension-module"] }
-iced = { version = "0.10.0", features = ["wgpu", "tokio", "debug"] }
-tokio = { version = "1.42.0", features = ["full"] }
-iced_wgpu = "0.11.1"
-iced_winit = "0.10.1"
+pyo3 = { version = "0.21.0", features = ["extension-module"] }
+iced = { version = "0.12.1", features = ["wgpu", "tokio", "debug"] }
+tokio = { version = "1.36.0", features = ["full"] }
+iced_wgpu = "0.12.1"
+iced_winit = "0.12.1"

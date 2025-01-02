@@ -155,7 +155,7 @@ impl Application for MicrowaveGUI {
 fn start_gui(gui: &MicrowaveGUI) -> PyResult<()> {
     println!("Starting GUI...");
     let mut settings = Settings::with_flags(gui.py_app.as_ref().unwrap().clone());
-    settings.window.size = (800, 600);
+    settings.window.size = iced::Size::new(800.0, 600.0);
     settings.window.position = window::Position::Centered;
     settings.window.resizable = true;
     settings.window.decorations = true;
@@ -167,7 +167,7 @@ fn start_gui(gui: &MicrowaveGUI) -> PyResult<()> {
 }
 
 #[pymodule]
-fn microwave_gui(_py: Python, m: &PyModule) -> PyResult<()> {
+fn microwave_gui(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MicrowaveGUI>()?;
     m.add_function(wrap_pyfunction!(start_gui, m)?)?;
     Ok(())
