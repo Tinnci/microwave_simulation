@@ -1,79 +1,59 @@
-# 微波阻抗匹配设计工具
+# 微波电路仿真工具
 
-[![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://python.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+基于Python和Rust开发的微波电路仿真工具，提供图形化界面进行电路设计和分析。
 
-## 项目概述
+## 环境要求
 
-本项目是一个用于微波阻抗匹配设计的工具软件，提供直观的图形界面和强大的计算功能，帮助工程师快速完成阻抗匹配设计。
+- Python 3.12+
+- Rust 1.76+
+- uv 包管理器
+- cargo 包管理器
 
-## 主要功能
-
-- 复数阻抗输入支持
-- 多种匹配方法选择
-- 实时参数验证
-- 史密斯圆图可视化
-- 优化计算支持
-- 批量参数扫描
-- 结果导出功能
-
-## 安装说明
-
-### 系统要求
-- Python 3.12 或更高版本
-- Windows 10/11
-- Rust工具链（可选，仅用于开发）
-
-### 安装步骤
+## 安装
 
 1. 克隆仓库：
 ```bash
-git clone https://github.com/Tinnci/microwave_simulation.git
+git clone https://github.com/yourusername/microwave_simulation.git
 cd microwave_simulation
 ```
 
-2. 使用 uv 安装依赖：
+2. 安装Python依赖：
 ```bash
-uv venv
-uv pip install -r requirements.txt
+uv pip install -r requirements.lock
 ```
 
-3. 安装开发依赖（可选）：
+3. 编译Rust组件：
 ```bash
-uv pip install -r requirements.txt[dev]
+cd gui_rust
+cargo build --release
+cd ..
 ```
 
-## 快速开始
+## 使用说明
 
-1. 启动程序：
+1. 启动应用：
 ```bash
-python src/gui/main.py
+python main.py
 ```
 
-2. 在界面中输入参数：
-   - 工作频率
-   - 特征阻抗
-   - 负载阻抗（复数形式）
+2. 在GUI界面中：
+   - 选择电路类型
+   - 输入参数
+   - 点击"计算"按钮进行仿真
+   - 查看结果图表
 
-3. 选择匹配方法
+## 开发
 
-4. 点击计算按钮获取结果
+1. 安装开发依赖：
+```bash
+uv pip install -r requirements-dev.txt
+```
 
-## 项目文档
-
-- [项目结构说明](docs/internal/PROJECT_STRUCTURE.md)
-- [快速入门指南](docs/guides/quickstart.md)
-- [理论基础](docs/guides/theory.md)
-- [分析方法](docs/guides/analysis.md)
-- [API文档](docs/api/README.md)
-- [示例](docs/examples/README.md)
-- [开发指南](docs/internal/development/CONTRIBUTING.md)
-
-## 贡献
-
-欢迎贡献代码！请阅读[贡献指南](docs/internal/development/CONTRIBUTING.md)了解如何参与项目开发。
+2. 运行测试：
+```bash
+pytest tests/
+```
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件 
+MIT License 

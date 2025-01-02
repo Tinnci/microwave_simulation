@@ -1,99 +1,76 @@
 # 快速入门指南
 
-## 简介
+## 环境准备
 
-微波阻抗匹配设计工具是一个用于设计和优化微波阻抗匹配网络的软件。本指南将帮助您快速上手使用该工具。
+1. 安装Python 3.12或更高版本
+2. 安装Rust 1.76或更高版本
+3. 安装uv包管理器
+4. 安装cargo包管理器
 
-## 安装
+## 安装步骤
 
-### 系统要求
-- Python 3.12 或更高版本
-- Rust 1.70 或更高版本
-- Windows 10/11
-- 2GB 以上内存
-- 500MB 可用磁盘空间
-
-### 安装步骤
-
-1. 安装Rust工具链(如果未安装):
+1. 克隆仓库：
 ```bash
-# Windows PowerShell
-winget install Rustlang.Rust.MSVC
-```
-
-2. 克隆仓库：
-```bash
-git clone https://github.com/Tinnci/microwave_simulation.git
+git clone https://github.com/yourusername/microwave_simulation.git
 cd microwave_simulation
 ```
 
-3. 创建虚拟环境并安装依赖：
+2. 安装Python依赖：
 ```bash
-uv venv
-uv pip install -e .
+uv pip install -r requirements.lock
 ```
 
-4. 编译GUI程序：
+3. 编译Rust组件：
 ```bash
 cd gui_rust
 cargo build --release
+cd ..
+```
+
+## 启动应用
+
+```bash
+python main.py
 ```
 
 ## 基本使用
 
-### 命令行使用
+1. 选择电路类型
+   - 阻抗匹配网络
+   - 滤波器
+   - 放大器
 
-```python
-from impedance_matching.core import QuarterWaveTransformer, StubMatcher
-from visualization.plotter import plot_s_parameters, plot_smith_chart, plot_vswr
-from optimization.calculator import BatchCalculator, CalculationParameters
+2. 输入参数
+   - 频率范围
+   - 阻抗值
+   - 其他电路参数
 
-# 设置参数
-frequency = 2.4e9  # 2.4 GHz
-z0 = 50.0  # 特征阻抗
-z_load = 75.0  # 负载阻抗
+3. 运行仿真
+   - 点击"计算"按钮
+   - 等待计算完成
 
-# 创建四分之一波长变压器
-quarter_wave = QuarterWaveTransformer(
-    frequency=frequency,
-    z0=z0,
-    zl=z_load
-)
+4. 查看结果
+   - S参数图
+   - 史密斯圆图
+   - 其他性能指标
 
-# 计算匹配网络参数
-result = quarter_wave.calculate()
+## 常见问题
 
-# 查看结果
-print(f"波长: {result['wavelength']} m")
-print(f"VSWR: {result['vswr']}")
-print(f"S参数: {result['s_parameters']}")
-```
+1. 如果遇到依赖安装问题：
+   - 确保Python和Rust版本正确
+   - 检查requirements.lock文件是否存在
+   - 尝试清理缓存后重新安装
 
-### GUI界面使用
+2. 如果GUI无法启动：
+   - 检查是否正确编译了Rust组件
+   - 查看日志文件中的错误信息
+   - 确保所有依赖都已正确安装
 
-1. 启动程序：
-```bash
-# 在项目根目录下
-./gui_rust/target/release/microwave_gui
-```
+## 下一步
 
-2. 界面功能区
-   - 参数输入区：设置频率、阻抗等参数
-   - 匹配方法选择：选择不同的匹配网络类型
-   - 结果显示区：查看计算结果和图表
-   - 工具栏：保存、导出等操作
-
-3. 参数设置
-   - 频率（Hz）：输入工作频率
-   - 特征阻抗（Ω）：输入传输线特征阻抗
-   - 负载阻抗（Ω）：输入负载阻抗
-
-4. 匹配方法
-   - 四分之一波长变换器：适用于纯阻性负载
-   - 单枝节匹配器：适用于复阻抗负载
-   - L型网络：适用于宽带匹配
-   - Pi型网络：适用于双向匹配
-   - T型网络：适用于多频段匹配
+- 阅读[理论基础](theory.md)了解更多设计原理
+- 查看[示例](../examples/README.md)获取使用灵感
+- 参考[API文档](../api/README.md)了解详细功能
 
 ## 高级功能
 

@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### 依赖更新
+- Python依赖更新：
+  - numpy 2.2.1
+  - scipy 1.14.1
+  - matplotlib 3.10.0
+  - pillow 11.0.0
+  - pytest 8.3.4
+  - maturin 1.8.1
+  - setuptools_rust 1.10.2
+
+- Rust依赖更新：
+  - pyo3 0.21.0
+  - iced 0.12.1
+  - tokio 1.36.0
+  - iced_wgpu 0.12.1
+  - iced_winit 0.12.1
+
 ### 新增
 - GUI模块测试用例
   - 应用初始化测试
@@ -56,3 +73,10 @@
 3. 阻抗匹配模块测试
    - 提高 impedance_matching 模块测试覆盖率
    - 添加计算正确性测试
+
+### 修复
+- 修复iced库API变化导致的类型错误
+  - 更新Size类型的使用方式
+- 修复pyo3库API变化导致的警告
+  - 更新模块绑定方式
+  - 使用新的生命周期标注
