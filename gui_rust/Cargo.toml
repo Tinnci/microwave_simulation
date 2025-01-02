@@ -1,18 +1,15 @@
 [package]
-name = "gui_rust"
+name = "microwave_gui"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "gui_rust"
-path = "src/lib.rs"
+name = "microwave_gui"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.20.0", features = ["extension-module"] }
-eframe = { version = "0.24.1", features = ["default_fonts", "glow", "persistence"] }
-egui = "0.24.1"
-egui_plot = "0.24.1"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-winapi = { version = "0.3.9", features = ["winuser", "windef"] }
+pyo3 = { version = "0.20.3", features = ["extension-module"] }
+iced = { version = "0.10.0", features = ["wgpu", "tokio", "debug"] }
+tokio = { version = "1.42.0", features = ["full"] }
+iced_wgpu = "0.11.1"
+iced_winit = "0.10.1"

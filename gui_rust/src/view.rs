@@ -1,12 +1,12 @@
 use iced::{
     widget::{button, column, container, radio, row, scrollable, text, text_input, tooltip, Space},
-    Alignment, Length, Renderer,
+    Alignment, Length, Element,
 };
 
-use crate::{MicrowaveGUI, MatchingMethod, Theme};
+use crate::{MicrowaveGUI, MatchingMethod};
 
 impl MicrowaveGUI {
-    pub(crate) fn view_content(&self) -> iced::Element<'_, Message, Renderer<Theme>> {
+    pub(crate) fn view_content(&self) -> Element<Message> {
         let title = text("微波阻抗匹配设计工具")
             .size(30)
             .width(Length::Fill)

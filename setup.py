@@ -7,7 +7,7 @@ setup(
     packages=find_packages(),
     rust_extensions=[
         RustExtension(
-            "gui_rust.lib",
+            "microwave_gui",
             "gui_rust/Cargo.toml",
             debug=False,
             py_limited_api=False
